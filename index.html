@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A LocalGo API testing and observability project using JMeter, Postman, Prometheus, and Grafana.">
+  <title>LocalGo | API Testing &amp; Observability</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172b3a;
+      --muted: #526575;
+      --paper: #f3f7f8;
+      --card: #ffffff;
+      --line: #dce6e9;
+      --navy: #102b3d;
+      --teal: #087e83;
+      --teal-soft: #e2f4f2;
+      --amber: #805a12;
+      --amber-soft: #fff4d8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: #075f72; }
+    a:focus-visible { outline: 3px solid #e4a832; outline-offset: 3px; }
+
+    .hero {
+      background: var(--navy);
+      border-bottom: 5px solid #25aaa0;
+      color: #f7fbfc;
+      padding: 3.5rem 1.25rem 3rem;
+    }
+
+    .hero-inner, .page { margin: 0 auto; max-width: 1060px; }
+    .eyebrow { color: #9de0d8; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.1; margin: .6rem 0 1rem; max-width: 780px; }
+    .hero p { color: #d5e4e9; font-size: 1.08rem; margin: 0; max-width: 760px; }
+
+    .page { padding: 1.25rem; }
+
+    nav {
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .25rem 1.15rem;
+      margin: -2.8rem 0 1.4rem;
+      padding: .8rem 1rem;
+      position: relative;
+    }
+
+    nav a { font-size: .92rem; font-weight: 650; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      padding: clamp(1.1rem, 3vw, 1.65rem);
+    }
+
+    h2 { color: var(--navy); font-size: 1.42rem; line-height: 1.25; margin: 0 0 .85rem; }
+    h3 { color: var(--navy); font-size: 1.05rem; margin: 0 0 .45rem; }
+    p { margin: .5rem 0; }
+    li { margin: .35rem 0; }
+    code { background: #edf3f5; border-radius: 4px; font-size: .92em; padding: .1rem .3rem; overflow-wrap: anywhere; }
+
+    .intro-grid, .tool-grid, .metric-grid, .limits-grid {
+      display: grid;
+      gap: .85rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+    }
+
+    .mini-card, .metric, .tool-card {
+      background: #fbfdfd;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 1rem;
+    }
+
+    .mini-card p, .tool-card p { color: var(--muted); margin-bottom: 0; }
+    .metric { border-top: 4px solid var(--teal); }
+    .metric-value { color: var(--navy); display: block; font-size: 1.9rem; font-weight: 750; letter-spacing: -.03em; line-height: 1.2; }
+    .metric-label { color: var(--muted); display: block; font-size: .9rem; margin-top: .3rem; }
+    .metric-note { color: var(--muted); display: block; font-size: .8rem; margin-top: .45rem; }
+    .tool-name { align-items: center; display: flex; gap: .55rem; }
+    .tool-tag { background: var(--teal-soft); border-radius: 999px; color: #075f60; font-size: .76rem; font-weight: 700; padding: .15rem .55rem; }
+
+    .flow {
+      background: #eff7f7;
+      border-left: 4px solid var(--teal);
+      border-radius: 7px;
+      margin: .8rem 0;
+      padding: .8rem 1rem;
+    }
+
+    .flow strong { color: var(--navy); }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; min-width: 700px; width: 100%; }
+    th, td { border-bottom: 1px solid var(--line); padding: .75rem; text-align: left; vertical-align: top; }
+    thead th { background: #edf4f5; color: var(--navy); font-size: .9rem; }
+    tbody th { color: var(--navy); min-width: 155px; }
+
+    .note {
+      background: var(--amber-soft);
+      border: 1px solid #f0d99b;
+      border-radius: 9px;
+      color: #63480f;
+      margin-top: 1rem;
+      padding: .85rem 1rem;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--teal);
+      color: #30495a;
+      font-size: 1.04rem;
+      margin: 0;
+      padding: .3rem 0 .3rem 1rem;
+    }
+
+    footer { color: var(--muted); font-size: .88rem; padding: 1rem 0 2rem; text-align: center; }
+
+    @media (max-width: 600px) {
+      .hero { padding: 2.8rem 1rem 3.3rem; }
+      .page { padding: .8rem; }
+      nav { gap: .45rem .9rem; margin-top: -2.2rem; }
+      section { margin: .8rem 0; }
+      .metric-value { font-size: 1.65rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Engineering project · API quality · observability</span>
+      <h1>LocalGo API Testing &amp; Observability</h1>
+      <p>A small-scale evaluation of the LocalGo driver order feed, combining functional API checks, request timing, and metrics visualization.</p>
+    </div>
+  </header>
+
+  <main class="page">
+    <nav aria-label="Page sections">
+      <a href="#overview">Overview</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#results">Results</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+
+    <section id="overview">
+      <h2>Project overview</h2>
+      <p>The project evaluated a LocalGo test backend connected to a dedicated Supabase test project. JMeter exercised the authenticated driver feed, Postman CLI checked endpoint behavior, Prometheus collected JMeter response-time metrics, and Grafana visualized the resulting data.</p>
+      <div class="intro-grid">
+        <article class="mini-card">
+          <h3>Test target</h3>
+          <p>Local FastAPI backend on <code>127.0.0.1:18083</code>, connected to the separate <strong>LocalGo Performance Test</strong> Supabase project.</p>
+        </article>
+        <article class="mini-card">
+          <h3>Test focus</h3>
+          <p>Backend health, driver login, authenticated <code>GET /orders/feed</code>, and missing-token rejection.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>How the pieces connect</h2>
+      <div class="flow"><strong>API test path</strong><br>JMeter → local FastAPI test backend → Supabase test project</div>
+      <div class="flow"><strong>Metrics path</strong><br>JMeter Prometheus Listener → Prometheus → Grafana</div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-name"><h3>JMeter</h3><span class="tool-tag">Load &amp; timing</span></div>
+          <p>Generated login and feed requests, checked responses, and ran a small command-line test. JMeter is a desktop/CLI test runner, not a local web service; its Prometheus listener was exposed at <code>127.0.0.1:9270</code>.</p>
+        </article>
+        <article class="tool-card">
+          <div class="tool-name"><h3>Postman CLI</h3><span class="tool-tag">API checks</span></div>
+          <p>Ran saved requests with assertions for health behavior and missing authentication. The CLI has no local service address; requests targeted the backend at <code>http://127.0.0.1:18083</code>.</p>
+        </article>
+        <article class="tool-card">
+          <div class="tool-name"><h3>Prometheus</h3><span class="tool-tag">Metrics storage</span></div>
+          <p>Web UI and query API: <code>http://127.0.0.1:9090</code>. Scraped the JMeter listener at <code>127.0.0.1:9270</code> every 15 seconds.</p>
+        </article>
+        <article class="tool-card">
+          <div class="tool-name"><h3>Grafana</h3><span class="tool-tag">Visualization</span></div>
+          <p>Web UI: <code>http://127.0.0.1:3000</code>. Queried local Prometheus and displayed an estimated feed p95 response time.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="results">
+      <h2>Results at a glance</h2>
+      <div class="metric-grid">
+        <article class="metric">
+          <span class="metric-value">30</span>
+          <span class="metric-label">Driver feed samples in the reported successful JTL summary</span>
+          <span class="metric-note">Across multiple runs in the combined JTL file</span>
+        </article>
+        <article class="metric">
+          <span class="metric-value">0%</span>
+          <span class="metric-label">Feed errors in those 30 reported samples</span>
+          <span class="metric-note">Earlier 401s happened during token setup and are excluded</span>
+        </article>
+        <article class="metric">
+          <span class="metric-value">307 ms</span>
+          <span class="metric-label">Average feed response time</span>
+          <span class="metric-note">User-reported combined JTL summary</span>
+        </article>
+        <article class="metric">
+          <span class="metric-value">≈ 800 ms</span>
+          <span class="metric-label">Grafana estimated feed p95</span>
+          <span class="metric-note">Approximate histogram-based value; small sample set</span>
+        </article>
+      </div>
+
+      <h3 style="margin-top: 1.5rem">JMeter run details</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Scenario</th><th scope="col">Samples</th><th scope="col">Errors</th><th scope="col">Timing</th><th scope="col">Interpretation</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Local health check</th>
+              <td>15</td><td>0</td><td>About 14 seconds; 1.1 requests/second</td>
+              <td>Confirmed the health endpoint responded in a small test. It did not exercise orders or database capacity.</td>
+            </tr>
+            <tr>
+              <th scope="row">One clean CLI feed run</th>
+              <td>18 total: 3 logins and 15 feed requests</td><td>0</td><td>305 ms average across all samples; 186 ms minimum; 562 ms maximum; about 1 request/second</td>
+              <td>Demonstrated a repeatable CLI run. The average combines login and feed timings.</td>
+            </tr>
+            <tr>
+              <th scope="row">Combined successful JTL feed summary</th>
+              <td>30 feed requests; 6 login requests in the combined file</td><td>0 feed errors</td><td>Feed average: 307 ms</td>
+              <td>Collected over more than one run; don’t treat it as one continuous test window.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting: resolving a JMeter 404</h2>
+      <p>During setup, JMeter received HTTP 404 responses because the test plan’s request configuration did not match the backend’s address and endpoint routing.</p>
+      <div class="flow"><strong>Diagnosis</strong><br>Compared the JMeter sampler’s host, port, and path with the running backend configuration, then corrected the mismatched port and request settings.</div>
+      <div class="flow"><strong>Resolution</strong><br>Restructured the JMeter test plan so the request components were organized and applied in the intended order, then reran the scenario and confirmed successful responses.</div>
+      <p class="note"><strong>Outcome:</strong> The corrected run produced successful feed samples. This troubleshooting step helped distinguish a test-plan configuration problem from an API availability problem.</p>
+    </section>
+
+    <footer>
+      <p>LocalGo API testing and observability project · No credentials or access tokens are included</p>
+    </footer>
+  </main>
+</body>
+</html>
